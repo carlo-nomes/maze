@@ -3,99 +3,86 @@
 <head>
     <title>Maze</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
-    <link href="style.css" rel="stylesheet" type="text/css">
-
-    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script>
-        var maze;
-        var el;
-        var el_breedte;
-        var el_hoogte;
-
-        $(document).ready(function () {
-            el = $("#maze-bg");
-            calc_wh();
-            make_maze(el_breedte, el_hoogte);
-            draw_maze();
-
-            $(window).on('resize', function () {
-                if (el.width() < $(window).width() || el.height() < $(window).height()) {
-                    calc_wh();
-                    expand_maze(el_breedte, el_hoogte);
-                    draw_maze();
-                }
-
-                el.width($(window).width());
-                el.height($(window).height());
-            });
-
-            $("#button").on('click', function () {
-                make_maze(el_breedte, el_hoogte);
-                draw_maze();
-            });
-        });
-
-
-        function calc_wh() {
-            var el_content = el.hmtl;
-
-            el.width("auto");
-            el.height("auto");
-            el.html('&#9585;&#9586;');
-
-            el_breedte = Math.ceil($(window).width() / (el.width() / 2));
-            el_hoogte = Math.ceil($(window).height() / el.height());
-
-            el.html(el_content);
-            el.width($(window).width());
-            el.height($(window).height());
-        }
-
-        function make_maze(w, h) {
-            maze = {};
-            for (i = 0; i < h; i++) {
-                maze[i] = [];
-                for (j = 0; j < w; j++) {
-                    maze[i][j] = (Math.random() < .5 ? "\u2571" : "\u2572");
-                }
-            }
-        }
-
-        function expand_maze(w, h) {
-            for (i = Object.keys(maze).length; i < h; i++) {
-                maze[i] = [];
-                for (j = 0; j < w; j++) {
-                    maze[i][j] = (Math.random() < .5 ? "\u2571" : "\u2572");
-                }
-            }
-            for (i = 0; i < Object.keys(maze).length; i++) {
-                for (j = Object.keys(maze[i]).length; j < w; j++) {
-                    maze[i][j] = (Math.random() < .5 ? "\u2571" : "\u2572");
-                }
-            }
-        }
-
-        function draw_maze() {
-            el.empty();
-            for (i = 0; i < el_hoogte; i++) {
-                for (j = 0; j < el_breedte; j++) {
-                    el.append(maze[i][j]);
-                }
-                el.append("<br\>");
-            }
-        }
-    </script>
-
+    <link href="./style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<span id="maze-bg">
-		</span>
+    <span class="slash-test maze-style hidden">&#9585;&#9586;</span>
+    <div id="maze-bg" class="maze-style"></div>
     <div class="center">
         <div id="button">
-            <h1>
-                Random maze background
-            </h1>
+            <h1> Random maze background </h1>
         </div>
     </div>
+
+    <script>
+        var mazeContainer = document.querySelector('#maze-bg');
+
+        function drawMaze() {
+            var mazeSize = getMazeSize(mazeContainer);
+
+            var maze = generateMaze(mazeSize.width, mazeSize.height);
+            console.log(mazeSize, maze.length);
+
+            var mazeNode = convertMazeToNode(maze);
+
+            while (mazeContainer.firstChild) {
+                mazeContainer.removeChild(mazeContainer.firstChild);
+            }
+            mazeContainer.appendChild(mazeNode);
+        }
+
+        // Initial
+        drawMaze();
+
+        window.onresize = function () {
+            // TODO implement way of increasing size of maze without remaking everything
+            // Window expands
+            if (prevWindowSize.width < window.innerWidth || prevWindowSize.height < window.innerHeight) {
+                drawMaze();
+                prevWindowSize.width = window.innerWidth;
+                prevWindowSize.height = window.innerHeight;
+            }
+        };
+
+        document.querySelector('#button').addEventListener('click', drawMaze);
+
+        function getMazeSize(container) {
+            var slashTest = document.querySelector(".slash-test");
+            var slashWidth = slashTest.offsetWidth / 2;
+            var slashHeight = slashTest.offsetHeight;
+
+            var mazeWidth = Math.ceil(container.offsetWidth / slashWidth);
+            var mazeHeight = Math.ceil(container.offsetHeight / slashHeight);
+
+            return {width: mazeWidth, height: mazeHeight}
+        }
+
+        function generateMaze(width, height) {
+            var matrix = [];
+            for (var i = 0; i < height; i++) {
+                matrix[i] = [];
+                for (var j = 0; j < width; j++) {
+                    matrix[i][j] = (Math.random() < .5 ? "\u2571" : "\u2572");
+                }
+            }
+            return matrix;
+        }
+
+        function convertMazeToNode(maze) {
+            var wrapper = document.createElement('div');
+            for (var i = 0; i < maze.length; i++) {
+                var lineString = "";
+                var brElement = document.createElement('br');
+                for (var j = 0; j < maze[i].length; j++) {
+                    lineString += maze[i][j];
+                }
+                var lineText = document.createTextNode(lineString);
+                wrapper.appendChild(lineText);
+                wrapper.appendChild(brElement);
+            }
+            return wrapper;
+        }
+
+    </script>
 </body>
 </html>
