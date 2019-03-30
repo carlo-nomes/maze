@@ -9,9 +9,7 @@
     <span class="slash-test maze-style hidden">&#9585;&#9586;</span>
     <div id="maze-bg" class="maze-style"></div>
     <div class="center">
-        <div id="button">
-            <h1> Random maze background </h1>
-        </div>
+        <button class="button">generate maze</button>
     </div>
 
     <script>
@@ -44,7 +42,7 @@
             }
         };
 
-        document.querySelector('#button').addEventListener('click', drawMaze);
+        document.querySelector('.button').addEventListener('click', drawMaze);
 
         function getMazeSize(container) {
             var slashTest = document.querySelector(".slash-test");
